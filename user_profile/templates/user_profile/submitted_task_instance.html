@@ -1,0 +1,196 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{{ topic_task_instance.task_name}}</title>
+	<link rel="stylesheet" type="text/css" href="{% static "css/style.css" %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+          integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+   crossorigin=""/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- Mobile Specific Metas -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script defer src="//unpkg.com/mathlive"></script>
+
+    <style>
+        .logo-image{
+            width: 100%;
+            height: 100%;
+            border-radius: 10%;
+            overflow: hidden;
+
+        }
+    #cfg {
+            text-decoration: none;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+	<div class="d-flex flex-column flex-md-row align-items-center p-2  bg-white border-bottom shadow-sm" style="height: auto;">
+
+      <a id="cfg" href="{% url 'home' %}"><b><h3 class="my-0 mr-md-auto">KyoStudy</h3></b></a>
+
+      {% if user.is_authenticated %}
+
+          <nav class="my-2 my-md-0 mr-md-3" style="margin-left: auto;">
+                <a class="p-2 text-dark" href="{% url 'profile'  username=request.session.username_for_instance %} " style="margin-left: auto; text-decoration: none"><h8>Hello {{ request.session.fname }}!</h8></a>
+                <a class="p-2 text-dark btn btn-outline-primary" href="{% url 'profile'  username=request.session.username_for_instance %} " id="profile">My Profile</a>
+                <a class="p-2 text-dark btn btn-outline-primary" href="/signout" style="text-decoration: none;">SignOut</a>
+            </nav>
+      {% else %}
+          <nav class="my-2 my-md-0 mr-md-3" style="margin-left: auto;">
+        <a class="btn btn-outline-primary" href="{% url 'register' %}" style="margin-right: 15px; margin-left: auto;">Register</a>
+        <a class="btn btn-outline-primary" href="{% url 'login' %}" style="margin-left: auto;">Login</a>
+        </nav>
+
+        {% endif %}
+
+
+    </div>
+
+	<div class="main">
+		<div class="subject-section"  style="width: 60%; margin-left: 20%;">
+
+
+			 <div class="subject-section-title"><h2>Task #{{submitted_task_instance.question_task.topic_task_id}}:</h2></div>
+
+
+			 <!-- будет это, если открывается теоритическая часть любой темы -->
+
+			<!-- <div class="subject-section-content">
+				<div><h1>Inequalities and systems of inequalities</h1></div>
+				<div><h2>Basic rules for solving inequalities</h2></div>
+				<div class="theoryOrTask-content">text text text text text text text text text text text text text text text </div>
+				<div class="backbutton"><a href=""><button class="sbutton">back</button></a></div>
+			</div> -->
+
+			<!-- Конец ТЕОРИИ -->
+
+			<!--будет это, если открывается задача-->
+
+			<div class="subject-section-content">
+
+                <div><br />
+                <h4>{{submitted_task_instance.question_task.task_name}}</h4>
+
+                </div>
+				<div class="theoryOrTask-content">{{ submitted_task_instance.question_text }}</div>
+
+                <form id="your-form-id" method="POST" action="" style="display: flex; flex-direction: column;">
+                {% csrf_token %}
+
+                    <br />
+                    <math-field id="question_field1" class="task-textarea" style="height: 50px;">{{ submitted_task_instance.question_field1 }}</math-field>
+                    <input type="hidden" name="question_field1_hidden">
+                    <math-field id="question_field2" class="task-textarea" style="height: 50px;">{{ submitted_task_instance.question_field2 }}</math-field>
+                    <input type="hidden" name="question_field2_hidden">
+                    <math-field id="question_field3" class="task-textarea" style="height: 50px;">{{ submitted_task_instance.question_field3 }}</math-field>
+                    <input type="hidden" name="question_field3_hidden">
+                    <math-field id="question_field4" class="task-textarea" style="height: 50px;">{{ submitted_task_instance.question_field4 }}</math-field>
+                    <input type="hidden" name="question_field4_hidden">
+                    <math-field id="question_field5" class="task-textarea" style="height: 50px;">{{ submitted_task_instance.question_field5 }}</math-field>
+                    <input type="hidden" name="question_field5_hidden">
+                    <math-field id="question_field6" class="task-textarea" style="height: 50px;">{{ submitted_task_instance.question_field6 }}</math-field>
+                    <input type="hidden" name="question_field6_hidden">
+                    <math-field id="question_field7" class="task-textarea" style="height: 50px;">{{ submitted_task_instance.question_field7 }}</math-field>
+                    <input type="hidden" name="question_field7_hidden">
+                    <math-field id="question_field8" class="task-textarea" style="height: 50px;">{{ submitted_task_instance.question_field8 }}</math-field>
+                    <input type="hidden" name="question_field8_hidden">
+                    <math-field id="question_field9" class="task-textarea" style="height: 50px;">{{ submitted_task_instance.question_field9 }}</math-field>
+                    <input type="hidden" name="question_field9_hidden">
+                    <math-field id="question_field10" class="task-textarea" style="height: 50px;">{{ submitted_task_instance.question_field10 }}</math-field>
+                    <input type="hidden" name="question_field10_hidden">
+                    <br/>
+                    <div><h4>{{ submitted_task_instance.user_submitted.first_name }}'s answer:</h4>
+                        <math-field id="question_answer" class="task-textarea" style="height: 50px;">{{ submitted_task_instance.question_answer }}</math-field>
+                        <input type="hidden" name="question_answer_hidden">
+                    </div>
+                </form>
+
+                <form method="POST" action="{% url 'submitted_grade' username=request.session.username_for_instance subject_id=subject_instance.subject_id submitted_user=submitted_task_instance.user_submitted.id submitted_task=submitted_task_instance.question_task.topic_task_id submitted_topic=submitted_task_instance.question_topic.topic_id %}" style="display: flex; flex-direction: column;">
+                    {% csrf_token %}
+                    <div class="form-group" style="display: flex; flex-direction: row; align-items: center; margin-top: 5%;">
+                              <label for="grade">Grade:</label>
+                              <input type="text" class="form-control" id="grade" name="grade" value="" style="width: 10%; margin-left: 2%;" required>
+                            </div>
+
+                    <div class="backbutton">
+                        <button type="submit" class="sbutton" style="margin-left: auto;">Finish</button>
+                    </div>
+                        </form>
+                    <div class="backbutton"><a href="{% url 'submitted_page'  subject_id=subject_instance.subject_id username=request.session.username_for_instance %}"><button class="sbutton">Back</button></a></div>
+
+
+
+
+			<!-- Конец ЗАДАЧИ -->
+
+
+	</div>
+<script>
+    function getMathFieldValues() {
+        var mathField1fromdb = {{ submitted_task_instance.question_field1 }};
+        var mathField1Hidden = document.getElementsByName('question_field1_hidden')[0];
+        mathField1Hidden.value = mathField1;
+
+        var mathField2 = document.getElementById('question_field2').getValue();
+        var mathField2Hidden = document.getElementsByName('question_field2_hidden')[0];
+        mathField2Hidden.value = mathField2;
+
+        var mathField3 = document.getElementById('question_field3').getValue();
+        var mathField3Hidden = document.getElementsByName('question_field3_hidden')[0];
+        mathField3Hidden.value = mathField3;
+
+        var mathField4 = document.getElementById('question_field4').getValue();
+        var mathField4Hidden = document.getElementsByName('question_field4_hidden')[0];
+        mathField4Hidden.value = mathField4;
+
+        var mathField5 = document.getElementById('question_field5').getValue();
+        var mathField5Hidden = document.getElementsByName('question_field5_hidden')[0];
+        mathField5Hidden.value = mathField5;
+
+        var mathField6 = document.getElementById('question_field6').getValue();
+        var mathField6Hidden = document.getElementsByName('question_field6_hidden')[0];
+        mathField6Hidden.value = mathField6;
+
+        var mathField7 = document.getElementById('question_field7').getValue();
+        var mathField7Hidden = document.getElementsByName('question_field7_hidden')[0];
+        mathField7Hidden.value = mathField7;
+
+        var mathField8 = document.getElementById('question_field8').getValue();
+        var mathField8Hidden = document.getElementsByName('question_field8_hidden')[0];
+        mathField8Hidden.value = mathField8;
+
+        var mathField9 = document.getElementById('question_field9').getValue();
+        var mathField9Hidden = document.getElementsByName('question_field9_hidden')[0];
+        mathField9Hidden.value = mathField9;
+
+        var mathField10 = document.getElementById('question_field10').getValue();
+        var mathField10Hidden = document.getElementsByName('question_field10_hidden')[0];
+        mathField10Hidden.value = mathField10;
+
+        var mathField_answer = document.getElementById('question_answer').getValue();
+        var mathField_answerHidden = document.getElementsByName('question_answer_hidden')[0];
+        mathField_answerHidden.value = mathField_answer;
+        // Retrieve values from other math-field elements and update the corresponding hidden input fields in a similar way
+
+        // Submit the form
+        document.getElementById('your-form-id').submit();
+    }
+</script>
+</body>
+</html>

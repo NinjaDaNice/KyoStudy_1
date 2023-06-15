@@ -1,0 +1,186 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ topic_instance.topic_name }}</title>
+    <link rel="stylesheet" type="text/css" href="{% static "css/style.css" %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+          integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+   crossorigin=""/>
+    <script src="https://kit.fontawesome.com/f5283efacd.js" crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- Mobile Specific Metas -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style>
+        .logo-image{
+            width: 100%;
+            height: 100%;
+            border-radius: 10%;
+            overflow: hidden;
+        }
+        #cfg {
+            text-decoration: none;
+            color: black;
+        }
+        .completed-icon {
+            color: green;
+            margin-left: 5px;
+            font-size: 25px;
+        }
+        .submitted-icon {
+            color: yellow;
+            margin-left: 5px;
+            font-size: 25px;
+        }
+        .not-completed-icon {
+            color: red;
+            margin-left: 5px;
+            font-size: 25px;
+        }
+        .grade {
+            margin-left: auto;
+            font-size: 18px;
+        }
+        .theory,
+        .task {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .theory a,
+        .task a {
+            text-decoration: none;
+            color: black;
+        }
+            .progress-bar {
+        width: 0%;
+        height: 100%;
+        border-radius: 5px;
+        background-color: green;
+        animation: progress-animation 1s ease-in-out;
+    }
+
+    @keyframes progress-animation {
+        0% {
+            width: 0%;
+        }
+        100% {
+            width: {{ completion_percentage }}%;
+        }
+    }
+    </style>
+</head>
+<body>
+<div class="d-flex flex-column flex-md-row align-items-center p-2  bg-white border-bottom shadow-sm" style="height: auto;">
+    <a id="cfg" href="{% url 'home' %}"><b><h3 class="my-0 mr-md-auto">KyoStudy</h3></b></a>
+    {% if user.is_authenticated %}
+    <nav class="my-2 my-md-0 mr-md-3" style="margin-left: auto;">
+        <a class="p-2 text-dark" href="{% url 'profile'  username=request.session.username_for_instance %} " style="margin-left: auto; text-decoration: none"><h8>Hello {{ request.session.fname }}!</h8></a>
+        <a class="p-2 text-dark btn btn-outline-primary" href="{% url 'profile'  username=request.session.username_for_instance %} " id="profile">My Profile</a>
+        <a class="p-2 text-dark btn btn-outline-primary" href="/signout" style="text-decoration: none;">SignOut</a>
+    </nav>
+    {% else %}
+    <nav class="my-2 my-md-0 mr-md-3" style="margin-left: auto;">
+        <a class="btn btn-outline-primary" href="{% url 'register' %}" style="margin-right: 15px; margin-left: auto;">Register</a>
+        <a class="btn btn-outline-primary" href="{% url 'login' %}" style="margin-left: auto;">Login</a>
+    </nav>
+    {% endif %}
+</div>
+
+<div class="main" >
+    <div class="subject-section" style="width: 60%; margin-left: 20%;">
+        <div class="subject-section-title"><h1>{{ subject_instance.name }}</h1></div>
+        <div class="subject-section-content">
+            <div><br /></div>
+            <div><h3>{{ topic_instance.topic_name }} ({{ completed_activities }}/{{ total_activities }})</h3></div>
+            <br />
+            <div class="topic-section-theory">
+                <div class="topic-section-theory-title"><h4>Theory</h4>
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: {{ theory_progress_percentage }}%;" aria-valuenow="{{ theory_progress_percentage }}" aria-valuemin="0" aria-valuemax="100">
+                    Completed
+                </div>
+            </div>
+                </div>
+                <div class="topic-section-theory-gen">
+                    {% for theory in topic_theorys %}
+                    <div class="theory">
+                        <a href="{% url 'theory' username=request.session.username_for_instance subject_id=subject_instance.subject_id topic_id=topic_instance.topic_id topic_theory_id=theory.topic_theory_id %}">
+                            {{ theory.theory_name }}
+                        </a>
+                    {% for theory_task in user_theories  %}
+                        {% if theory_task.theory == theory %}
+                            <span class="grade">{{ theory_task.grade }}</span>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% for theory_task in user_theories %}
+                        {% if theory_task.theory == theory %}
+                                {% if theory_task.completed %}
+                                    <i class="fas fa-check-circle completed-icon"></i>
+                                {% else %}
+                                    <i class="far fa-circle not-completed-icon"></i>
+                                {% endif %}
+                        {% endif %}
+                            {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="topic-section-tasks">
+                <div class="topic-section-tasks-title"><h4>Tasks</h4>
+                <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: {{ tasks_progress_percentage }}%;" aria-valuenow="{{ tasks_progress_percentage }}" aria-valuemin="0" aria-valuemax="100">
+                    {{ tasks_progress_percentage }}%
+                </div>
+            </div>
+                </div>
+                <div class="topic-section-tasks-gen">
+                    {% for task in topic_tasks %}
+                    <div class="task">
+                        <a href="{% url 'task' username=request.session.username_for_instance subject_id=subject_instance.subject_id topic_id=topic_instance.topic_id topic_task_id=task.topic_task_id %}">
+                            {{ task.task_name }}
+                        </a>
+                    {% for task_task in user_tasks  %}
+                        {% if task_task.task == task %}
+
+                            <span class="grade">{{ task_task.grade }}</span>
+
+                        {% endif %}
+                    {% endfor %}
+                            {% for task_task in user_tasks %}
+                                {% if task_task.task == task%}
+
+                                {% if task_task.completed %}
+                                    <i class="fas fa-check-circle completed-icon"></i>
+                                {% elif task_task.submitted %}
+                                    <i class="fa-regular fa-clock  submitted-icon"></i>
+                                {% else %}
+                                    <i class="far fa-circle not-completed-icon"></i>
+                                {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="backbutton">
+                <a href="{% url 'subject' subject_id=subject_instance.subject_id username=request.session.username_for_instance %}">
+                    <button class="sbutton">back</button>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
